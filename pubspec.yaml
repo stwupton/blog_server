@@ -1,0 +1,5 @@
+name: blog_server
+version: 0.0.1
+description: RESTful API server for blog.
+dependencies:
+  bliss: '^0.2.1'
