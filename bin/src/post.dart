@@ -21,6 +21,17 @@ class Post {
 
   }
 
+  Future<bool> delete() async {
+
+    if (!_fromExisting)
+      return false;
+
+    // delete post from db
+
+    return true;
+
+  }
+
   Future<bool> save() async {
     if (_fromExisting) {
       // update post
@@ -28,6 +39,21 @@ class Post {
       // insert post
     }
     return false;
+  }
+
+  Map toMap() {
+
+    if (!_fromExisting)
+      throw 'Post does not exist yet, it first needs to be saved.';
+
+    return {
+      'id': _id,
+      'title': title,
+      'body': body,
+      // 'created': created,
+      // 'updated': updated
+    };
+
   }
 
 }
