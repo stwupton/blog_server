@@ -22,21 +22,21 @@ void main() {
     ..addHandler('GET', '/post/:year/:month/:post_id', () => null)
 
     // Edit and retrieve drafts (admin)
-    ..addHandler('POST', '/draft', () => null)
-    ..addHandler('PUT', '/draft', () => null)
+    ..addHandler('POST', '/draft', (Map data) => createPost(data, draft: true))
+    ..addHandler('PUT', '/draft', (Map data) => updatePost(data, draft: true))
     ..addHandler('GET', '/draft', () => null)
-    ..addHandler('GET', '/draft/:podt_id', () => null)
+    ..addHandler('GET', '/draft/:post_id', () => null)
 
     ..start();
 
 }
 
-Future<Map> createPost(Map postData) async {
+Future<Map> createPost(Map postData, {bool draft: false}) async {
 
   if (!checkRequirements(postData, required: ['title', 'body']))
     return apiResponse(-1);
 
-  Post post = new Post(postData['title'], postData['body']);
+  Post post = new Post(postData['title'], postData['body'], draft: draft);
 
   if (!await post.save())
     return apiResponse(-2, 'Could not create new post.');
@@ -45,12 +45,12 @@ Future<Map> createPost(Map postData) async {
 
 }
 
-Future<Map> updatePost(Map postData) async {
+Future<Map> updatePost(Map postData, {bool draft: false}) async {
 
   if (!checkRequirements(postData, required: ['id'], optional: ['title', 'body']))
     return apiResponse(-1);
 
-  Post post = await Post.fromExisting(postData['id']);
+  Post post = await Post.fromExisting(postData['id'], draft: draft);
 
   if (postData['title'] != null)
     post.title = postData['title'];
