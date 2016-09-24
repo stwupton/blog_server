@@ -2,4 +2,8 @@ name: blog_server
 version: 0.0.1
 description: RESTful API server for blog.
 dependencies:
-  bliss: '^0.2.1'
+  bliss:
+    git:
+      url: 'https://github.com/stwupton/bliss.git'
+      ref: 'bugfix/regex_improvement'
+  postgresql: '^0.3.3'

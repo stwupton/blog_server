@@ -1,5 +1,8 @@
 part of blog.server;
 
+// Postgresql database
+Connection pgdb;
+
 bool checkRequirements(
     Map data,
     {List required: const [],
