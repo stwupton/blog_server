@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:bliss/bliss.dart';
 import 'package:postgresql/postgresql.dart';
+import 'package:dbcrypt/dbcrypt.dart';
 
 part 'src/post.dart';
 part 'src/post_index.dart';
@@ -23,6 +24,7 @@ Future main() async {
     ..addHandler('DELETE', '/post/:id', deletePost)
 
     // Retrieve indexes and post data
+    ..addHandler('GET', '/post/index', getIndex)
     ..addHandler('GET', '/post/index/:year', getIndex)
     ..addHandler('GET', '/post/index/:year/:month', getIndex)
     ..addHandler('GET', '/post/:id', getPost)
@@ -40,13 +42,16 @@ Future main() async {
 
 Future<Map> createPost(Map postData, {bool draft: false}) async {
 
-  if (!checkRequirements(postData, required: ['title', 'body']))
+  if (!checkRequirements(postData, required: ['title', 'body', 'username', 'password']))
     return apiResponse(-1);
+
+  if (draft && !await validateCredentials(postData['username'], postData['password']))
+    return apiResponse(-2, 'Invalid credentials');
 
   Post post = new Post(postData['title'], postData['body'], draft: draft);
 
   if (!await post.save())
-    return apiResponse(-2, 'Could not create new post.');
+    return apiResponse(-3, 'Could not create new post.');
   else
     return apiResponse(0);
 
@@ -54,13 +59,16 @@ Future<Map> createPost(Map postData, {bool draft: false}) async {
 
 Future<Map> deletePost(Map postData, {bool draft: false}) async {
 
+  if (!await validateCredentials(postData['username'], postData['password']))
+    return apiResponse(-2, 'Invalid credentials');
+
   Post post = await Post.fromExisting(postData['id'], draft: draft);
 
   if (post == null)
-    return apiResponse(-2, 'Post does not exist.');
+    return apiResponse(-3, 'Post does not exist.');
 
   if (!await post.delete())
-    return apiResponse(-3, 'Could not delete post.');
+    return apiResponse(-4, 'Could not delete post.');
   else
     return apiResponse(0);
 
@@ -88,13 +96,16 @@ Future<Map> getPost(Map postData, {bool draft: false}) async {
 
 Future<Map> updatePost(Map postData, {bool draft: false}) async {
 
-  if (!checkRequirements(postData, required: ['id'], optional: ['title', 'body']))
+  if (!checkRequirements(postData, required: ['id'], optional: ['title', 'body', 'username', 'password']))
     return apiResponse(-1);
+
+  if (!await validateCredentials(postData['username'], postData['password']))
+    return apiResponse(-2, 'Invalid credentials');
 
   Post post = await Post.fromExisting(postData['id'], draft: draft);
 
   if (post == null)
-    return apiResponse(-2, 'Post does not exist.');
+    return apiResponse(-3, 'Post does not exist.');
 
   if (postData['title'] != null)
     post.title = postData['title'];
@@ -103,7 +114,7 @@ Future<Map> updatePost(Map postData, {bool draft: false}) async {
     post.body = postData['body'];
 
   if (!await post.save())
-    return apiResponse(-3, 'Could not update post.');
+    return apiResponse(-4, 'Could not update post.');
   else
     return apiResponse(0);
 

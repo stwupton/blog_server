@@ -7,3 +7,4 @@ dependencies:
       url: 'https://github.com/stwupton/bliss.git'
       ref: 'bugfix/regex_improvement'
   postgresql: '^0.3.3'
+  dbcrypt: any

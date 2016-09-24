@@ -41,3 +41,18 @@ Map apiResponse(int code, [String message]) {
   return response;
 
 }
+
+Future<bool> validateCredentials(String username, String password) async {
+
+  if (username == null || password == null)
+    return false;
+
+  Row row = await pgdb.query(
+      'select username, password from admin where username = @username limit 1',
+      {'username': username}).single;
+
+  Map credentials = row.toMap();
+
+  return new DBCrypt().checkpw(password, credentials['password']);
+
+}
