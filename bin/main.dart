@@ -16,7 +16,7 @@ Future main() async {
   // Initialise database connection.
   pgdb = await connect(Platform.environment['DATABASE_URL']);
 
-  new Server(InternetAddress.ANY_IP_V6, 8080)
+  new Server(InternetAddress.ANY_IP_V6, int.parse(Platform.environment['PORT']))
 
     // Edit posts (admin)
     ..addHandler('POST', '/post', createPost)
