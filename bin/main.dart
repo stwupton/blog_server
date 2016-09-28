@@ -45,7 +45,7 @@ Future<Map> createPost(Map postData, {bool draft: false}) async {
   if (!checkRequirements(postData, required: ['title', 'body', 'username', 'password']))
     return apiResponse(-1);
 
-  if (draft && !await validateCredentials(postData['username'], postData['password']))
+  if (!await validateCredentials(postData['username'], postData['password']))
     return apiResponse(-2, 'Invalid credentials');
 
   Post post = new Post(postData['title'], postData['body'], draft: draft);
